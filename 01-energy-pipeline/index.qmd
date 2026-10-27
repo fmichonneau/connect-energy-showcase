@@ -1,0 +1,292 @@
+---
+title: "Energy access data refresh"
+subtitle: "World Development Indicators, retrieved from the Data360 API"
+format:
+  html:
+    embed-resources: true
+    toc: false
+execute:
+  echo: false
+  warning: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+import os
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pandas as pd
+import pins
+import requests
+from IPython.display import Markdown, display
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+DATA360_URL = "https://data360api.worldbank.org/data360/data"
+COUNTRIES_URL = "https://api.worldbank.org/v2/country"
+PAGE_SIZE = 1000
+START_YEAR = 2000
+
+# Data360 indicator ID -> (short code, label, unit)
+INDICATORS = {
+    "WB_WDI_EG_ELC_ACCS_ZS": ("elec_access", "Access to electricity", "% of population"),
+    "WB_WDI_EG_ELC_ACCS_RU_ZS": ("elec_access_rural", "Access to electricity, rural", "% of rural population"),
+    "WB_WDI_EG_ELC_ACCS_UR_ZS": ("elec_access_urban", "Access to electricity, urban", "% of urban population"),
+    "WB_WDI_EG_FEC_RNEW_ZS": ("renewable_share", "Renewable energy consumption", "% of total final energy consumption"),
+    "WB_WDI_NY_GDP_PCAP_CD": ("gdp_pc", "GDP per capita", "current US$"),
+    "WB_WDI_SP_POP_TOTL": ("population", "Population", "people"),
+}
+
+# The seven WDI regions and the world total; other aggregates are dropped.
+REGIONS = {
+    "SSF": "Sub-Saharan Africa",
+    "SAS": "South Asia",
+    "EAS": "East Asia & Pacific",
+    "LCN": "Latin America & Caribbean",
+    "MEA": "Middle East, North Africa, Afghanistan & Pakistan",
+    "ECS": "Europe & Central Asia",
+    "NAC": "North America",
+}
+WORLD = {"WLD": "World"}
+
+
+def http_session() -> requests.Session:
+    retry = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session
+
+
+def energy_board():
+    """Pin board and pin name: Connect when running there, a local folder otherwise."""
+    name = os.getenv("ENERGY_PIN", "energy_indicators")
+    if os.getenv("CONNECT_SERVER") and os.getenv("CONNECT_API_KEY"):
+        board = pins.board_connect()
+        if "/" not in name:
+            name = f"{board.user_name}/{name}"
+        return board, name
+    local_dir = Path(os.getenv("ENERGY_PINS_DIR", Path.cwd().parent / "_pins"))
+    local_dir.mkdir(parents=True, exist_ok=True)
+    return pins.board_folder(str(local_dir)), name.split("/")[-1]
+
+
+session = http_session()
+```
+
+```{python}
+#| label: fetch
+def fetch_areas() -> pd.DataFrame:
+    resp = session.get(COUNTRIES_URL, params={"format": "json", "per_page": 400}, timeout=60)
+    resp.raise_for_status()
+    rows = []
+    for c in resp.json()[1]:
+        region = c["region"]["value"].strip()
+        if region == "Aggregates":
+            continue
+        rows.append({
+            "iso3": c["id"],
+            "name": c["name"],
+            "area_type": "country",
+            "region": region,
+            "income_group": c["incomeLevel"]["value"],
+        })
+    rows += [{"iso3": k, "name": v, "area_type": "region", "region": v, "income_group": None}
+             for k, v in REGIONS.items()]
+    rows += [{"iso3": k, "name": v, "area_type": "world", "region": v, "income_group": None}
+             for k, v in WORLD.items()]
+    return pd.DataFrame(rows)
+
+
+def fetch_indicator(indicator_id: str) -> pd.DataFrame:
+    """Page through one Data360 indicator until every observation is retrieved."""
+    values, skip, total = [], 0, None
+    while total is None or skip < total:
+        resp = session.get(
+            DATA360_URL,
+            params={"DATABASE_ID": "WB_WDI", "INDICATOR": indicator_id, "skip": skip},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        total = payload["count"]
+        values += payload["value"]
+        skip += PAGE_SIZE
+    df = pd.DataFrame(values)[["REF_AREA", "TIME_PERIOD", "OBS_VALUE"]]
+    df.columns = ["iso3", "year", "value"]
+    df["indicator_id"] = indicator_id
+    return df
+
+
+areas = fetch_areas()
+with ThreadPoolExecutor(max_workers=6) as pool:
+    raw = pd.concat(pool.map(fetch_indicator, INDICATORS), ignore_index=True)
+
+meta = pd.DataFrame(
+    [(k, *v) for k, v in INDICATORS.items()],
+    columns=["indicator_id", "indicator", "indicator_label", "unit"],
+)
+
+obs = (
+    raw.assign(
+        year=pd.to_numeric(raw["year"], errors="coerce"),
+        value=pd.to_numeric(raw["value"], errors="coerce"),
+    )
+    .dropna(subset=["year", "value"])
+    .astype({"year": int})
+    .query("year >= @START_YEAR")
+    .merge(meta, on="indicator_id")
+    .drop(columns="indicator_id")
+)
+```
+
+```{python}
+#| label: checks
+# Hold back isolated spikes in percentage indicators: a jump of more than
+# MAX_JUMP points within three years that is not sustained the next year.
+MAX_JUMP = 30
+
+pct = obs[obs["unit"].str.startswith("%")].sort_values(["iso3", "indicator", "year"])
+by_series = pct.groupby(["iso3", "indicator"])
+prev_value, prev_year = by_series["value"].shift(1), by_series["year"].shift(1)
+next_value = by_series["value"].shift(-1)
+
+is_spike = (
+    ((pct["value"] - prev_value).abs() > MAX_JUMP)
+    & ((pct["year"] - prev_year) <= 3)
+    & (next_value.isna() | ((next_value - pct["value"]).abs() > MAX_JUMP))
+)
+held_back = pct[is_spike].assign(previous_value=prev_value[is_spike])
+obs = obs.drop(index=held_back.index)
+```
+
+```{python}
+#| label: derive
+# People without electricity = population x (100 - access) / 100
+wide = obs.pivot_table(index=["iso3", "year"], columns="indicator", values="value").reset_index()
+no_elec = (
+    wide.dropna(subset=["population", "elec_access"])
+    .assign(value=lambda d: d["population"] * (100 - d["elec_access"]) / 100)
+    [["iso3", "year", "value"]]
+    .assign(
+        indicator="pop_no_elec",
+        indicator_label="People without electricity",
+        unit="people",
+    )
+)
+
+energy = (
+    pd.concat([obs, no_elec], ignore_index=True)
+    .merge(areas, on="iso3", how="inner")
+    [["iso3", "name", "area_type", "region", "income_group",
+      "indicator", "indicator_label", "unit", "year", "value"]]
+    .sort_values(["indicator", "iso3", "year"], ignore_index=True)
+)
+
+if energy.empty:
+    raise RuntimeError("The Data360 API returned no usable observations.")
+```
+
+```{python}
+#| label: write-pin
+refreshed_at = datetime.now(timezone.utc)
+latest_years = energy.groupby("indicator")["year"].max().to_dict()
+
+n_countries = int((areas["area_type"] == "country").sum())
+
+board, pin_name = energy_board()
+board.pin_write(
+    energy,
+    pin_name,
+    type="parquet",
+    title="Energy access indicators",
+    description=(
+        "Access to electricity, renewable energy share, GDP per capita, and population "
+        f"for {n_countries} economies, "
+        "seven regions, and the world, from the Data360 API."
+    ),
+    metadata={
+        "source": "Data360 API, database WB_WDI",
+        "refreshed_at": refreshed_at.isoformat(timespec="seconds"),
+        "start_year": START_YEAR,
+        "latest_years": {k: int(v) for k, v in latest_years.items()},
+    },
+)
+```
+
+```{python}
+#| label: summary
+ssa_latest = (
+    energy.query("iso3 == 'SSF' and indicator == 'pop_no_elec'")
+    .sort_values("year")
+    .tail(1)
+)
+headline = ""
+if not ssa_latest.empty:
+    people = ssa_latest["value"].iloc[0] / 1e6
+    year = ssa_latest["year"].iloc[0]
+    headline = (
+        f"In {year}, about **{people:,.0f} million people** in Sub-Saharan Africa "
+        "lived without access to electricity."
+    )
+
+display(Markdown(
+    f"Refreshed **{refreshed_at:%Y-%m-%d %H:%M} UTC**. "
+    f"Wrote **{len(energy):,} rows** to the pin `{pin_name}`.\n\n{headline}"
+))
+```
+
+## What this run retrieved
+
+```{python}
+#| label: coverage
+coverage = (
+    energy.groupby(["indicator_label", "unit"])
+    .agg(
+        areas=("iso3", "nunique"),
+        first_year=("year", "min"),
+        latest_year=("year", "max"),
+        rows=("value", "size"),
+    )
+    .reset_index()
+    .rename(columns={
+        "indicator_label": "Indicator",
+        "unit": "Unit",
+        "areas": "Countries and regions",
+        "first_year": "First year",
+        "latest_year": "Latest year",
+        "rows": "Observations",
+    })
+)
+coverage.style.hide(axis="index").format({"Observations": "{:,}"})
+```
+
+## Data checks
+
+```{python}
+#| label: held-back
+if held_back.empty:
+    display(Markdown("No values were held back in this run."))
+else:
+    display(Markdown(
+        f"{len(held_back)} value(s) were held back because they jump by more than "
+        f"{MAX_JUMP} percentage points from the previous observation without being sustained:"
+    ))
+    display(
+        held_back.merge(areas[["iso3", "name"]], on="iso3")
+        [["name", "indicator_label", "year", "previous_value", "value"]]
+        .rename(columns={
+            "name": "Area",
+            "indicator_label": "Indicator",
+            "year": "Year",
+            "previous_value": "Previous value",
+            "value": "Reported value",
+        })
+        .style.hide(axis="index")
+        .format({"Previous value": "{:.1f}", "Reported value": "{:.1f}"})
+    )
+```
+
+Every app in this showcase reads the pin this document writes, so none of them calls the Data360 API directly.

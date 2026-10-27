@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "locale": "en_US.UTF-8",
+  "metadata": {
+    "appmode": "python-fastapi",
+    "entrypoint": "app:app"
+  },
+  "python": {
+    "version": "3.13.17",
+    "package_manager": {
+      "name": "pip",
+      "version": "26.2.2",
+      "package_file": "requirements.txt"
+    }
+  },
+  "environment": {
+    "python": {
+      "requires": ">=3.11"
+    }
+  },
+  "files": {
+    "requirements.txt": {
+      "checksum": "5b75e5dd2a55ed5e6f8f1ad5d1a1c78a"
+    },
+    ".python-version": {
+      "checksum": "40e617375ea9a80bb2efb809a91d9b20"
+    },
+    "README.md": {
+      "checksum": "8052b149ad7e7ad05bf0fbac23ab301e"
+    },
+    "app.py": {
+      "checksum": "0ed866ba391af84650dc9aa8c0c288ab"
+    }
+  }
+}

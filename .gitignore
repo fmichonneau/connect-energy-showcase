@@ -1,0 +1,12 @@
+.venv/
+node_modules/
+_pins/
+.Rproj.user/
+.Rhistory
+__pycache__/
+*.html
+!*/www/*.html
+*_files/
+email-preview/
+.quarto/
+.DS_Store

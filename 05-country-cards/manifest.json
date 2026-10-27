@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "metadata": {
+    "appmode": "nodejs",
+    "entrypoint": "app.js"
+  },
+  "node": {
+    "version": "26.12.1",
+    "package_manager": {
+      "name": "npm",
+      "version": "11.20.0",
+      "package_file": "package.json"
+    }
+  },
+  "files": {
+    "README.md": {
+      "checksum": "16ec3a723f4ee371bfd0f86371aef86b"
+    },
+    "app.js": {
+      "checksum": "6372a25bafdd1fc326a0628fe5e2e56d"
+    },
+    "package-lock.json": {
+      "checksum": "984c8334806fc78744ce6e86ff829859"
+    },
+    "package.json": {
+      "checksum": "4183448d7cd233cd1b03f18265ce3e3c"
+    }
+  },
+  "locale": "en_US"
+}

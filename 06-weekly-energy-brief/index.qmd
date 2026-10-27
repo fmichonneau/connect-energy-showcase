@@ -1,0 +1,137 @@
+---
+title: "Energy access in Sub-Saharan Africa"
+subtitle: "Weekly brief"
+format: email
+email-attachments:
+  - ssa-top10-without-electricity.csv
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(pins)
+library(nanoparquet) # pins reads Parquet pins through nanoparquet
+
+energy_board <- function() {
+  name <- Sys.getenv("ENERGY_PIN", "energy_indicators")
+  if (nzchar(Sys.getenv("CONNECT_SERVER")) && nzchar(Sys.getenv("CONNECT_API_KEY"))) {
+    list(board = board_connect(auth = "envvar"), name = name)
+  } else {
+    list(
+      board = board_folder(Sys.getenv("ENERGY_PINS_DIR", "../_pins")),
+      name = basename(name)
+    )
+  }
+}
+
+pin <- energy_board()
+energy <- pin_read(pin$board, pin$name)
+```
+
+```{r}
+#| label: compute
+millions <- function(x) formatC(x / 1e6, format = "f", digits = 0, big.mark = ",")
+
+ssa_access <- energy |> filter(iso3 == "SSF", indicator == "elec_access")
+latest_year <- max(ssa_access$year)
+latest_access <- ssa_access$value[ssa_access$year == latest_year]
+
+ssa_without <- energy |> filter(iso3 == "SSF", indicator == "pop_no_elec")
+without_now <- ssa_without$value[ssa_without$year == latest_year]
+without_2015 <- ssa_without$value[ssa_without$year == 2015]
+change <- without_now - without_2015
+change_text <- if (change < 0) {
+  paste("down", millions(-change), "million since 2015")
+} else {
+  paste("up", millions(change), "million since 2015")
+}
+
+top10 <- energy |>
+  filter(area_type == "country", region == "Sub-Saharan Africa", year == latest_year) |>
+  filter(indicator %in% c("pop_no_elec", "elec_access")) |>
+  select(name, indicator, value) |>
+  tidyr::pivot_wider(names_from = indicator, values_from = value) |>
+  slice_max(pop_no_elec, n = 10) |>
+  transmute(
+    Country = name,
+    `People without electricity (millions)` = round(pop_no_elec / 1e6, 1),
+    `Access to electricity (%)` = round(elec_access, 1)
+  )
+write.csv(top10, "ssa-top10-without-electricity.csv", row.names = FALSE)
+
+# Send only when the data has a newer year than the last brief that went out.
+last_sent_year <- as.integer(Sys.getenv("LAST_SENT_YEAR", "0"))
+send_email <- if (latest_year > last_sent_year) "yes" else "no"
+
+access_chart <- energy |>
+  filter(iso3 %in% c("SSF", "WLD"), indicator == "elec_access") |>
+  mutate(name = factor(name, levels = c("Sub-Saharan Africa", "World"))) |>
+  ggplot(aes(year, value, color = name, linetype = name)) +
+  geom_line(linewidth = 0.9) +
+  scale_color_manual(values = c("Sub-Saharan Africa" = "#2a78d6", "World" = "#52514e")) +
+  scale_linetype_manual(values = c("Sub-Saharan Africa" = "solid", "World" = "dashed")) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 5)) +
+  scale_y_continuous(limits = c(0, 100), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "top",
+    legend.justification = "left",
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "#e1e0d9"),
+    text = element_text(color = "#52514e")
+  )
+```
+
+In `r latest_year`, **`r millions(without_now)` million people** in Sub-Saharan Africa lived without electricity, `r change_text`. Access reached **`r round(latest_access, 1)`%** of the population.
+
+## Access to electricity, Sub-Saharan Africa and the world
+
+```{r}
+#| label: access-chart
+#| fig-width: 7
+#| fig-height: 3.5
+#| fig-alt: "Line chart of access to electricity since 2000. Sub-Saharan Africa rises steadily but stays well below the world average, which is shown as a dashed line."
+access_chart
+```
+
+## Ten countries with the most people without electricity
+
+```{r}
+#| label: top10-table
+kable(top10)
+```
+
+Source: World Development Indicators, via the Data360 API.
+
+::: {.email}
+
+::: {.subject}
+Electricity access in Sub-Saharan Africa: `r round(latest_access, 1)` percent in `r latest_year`
+:::
+
+::: {.email-scheduled}
+`r send_email`
+:::
+
+Hello,
+
+In `r latest_year`, **`r millions(without_now)` million people** in Sub-Saharan Africa lived without electricity, `r change_text`. Access reached **`r round(latest_access, 1)`%** of the population.
+
+```{r}
+#| label: email-chart
+#| fig-width: 7
+#| fig-height: 3.5
+#| fig-alt: "Line chart of access to electricity since 2000 for Sub-Saharan Africa and the world."
+access_chart
+```
+
+The ten countries with the most people without electricity are in the attached CSV file.
+
+:::

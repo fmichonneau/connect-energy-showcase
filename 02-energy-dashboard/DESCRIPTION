@@ -1,0 +1,11 @@
+Type: project
+Description: Energy access explorer, a Shiny app for the Posit Connect showcase.
+Imports:
+    bsicons,
+    bslib,
+    dplyr,
+    DT,
+    nanoparquet,
+    pins,
+    plotly,
+    shiny
