@@ -1,6 +1,6 @@
 # energy-api (FastAPI)
 
-JSON API over the `energy_indicators` pin. The `country-cards` Node.js app calls it.
+JSON API over the `energy_indicators` pin, for other apps, scripts, and tools such as Excel or Power BI to build on.
 
 | Endpoint | Returns |
 | --- | --- |
@@ -30,5 +30,5 @@ uv venv -p 3.13 .venv && uv pip install -p .venv -r requirements.txt uvicorn
 Import from Git (see `../README.md`), folder `04-energy-api`. Then:
 
 - **Access**: "All users, login required", so every call needs an API key.
-- **Custom URL**: `/energy-api/`. `country-cards` uses it.
+- **Custom URL**: `/energy-api/`.
 - Tag `energy-showcase`.

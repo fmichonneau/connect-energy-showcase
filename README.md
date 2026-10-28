@@ -8,7 +8,6 @@ Small apps built around one dataset, each chosen to show a Connect feature rathe
 | `02-energy-dashboard` | Shiny for R | Runtime settings, usage metrics, live update from a Git push, custom URL |
 | `03-energy-quicklook` | Streamlit | Environment rebuilt from `requirements.txt`, logs |
 | `04-energy-api` | FastAPI | Generated API docs, API keys, access control on an API |
-| `05-country-cards` | Node.js (Express) | New content type, environment variables, one content item calling another |
 | `06-weekly-energy-brief` | Quarto document, R | Schedules, custom email, conditional sending |
 | `08-energy-chat` | Shiny for R with querychat | AI provider credentials kept out of code |
 
@@ -79,7 +78,7 @@ Then run any app from its folder; see the README in each folder.
 
 ## Deploying to Connect
 
-Each folder is a separate content item with its own `manifest.json`. The manifest tells Connect the content type, the entry point, the language versions, and the packages to install. Connect deploys everything in the folder that is committed to Git (it uses `git archive`), so keep virtual environments, `node_modules`, and rendered output out of the repository; `.gitignore` handles that.
+Each folder is a separate content item with its own `manifest.json`. The manifest tells Connect the content type, the entry point, the language versions, and the packages to install. Connect deploys everything in the folder that is committed to Git (it uses `git archive`), so keep virtual environments and rendered output out of the repository; `.gitignore` handles that.
 
 **First deployment of each item**
 
@@ -106,8 +105,7 @@ Only items whose folder changed are redeployed. Connect cannot mix update method
 | `02-energy-dashboard` | `Rscript -e 'rsconnect::writeManifest(appPrimaryDoc = "app.R")'` |
 | `03-energy-quicklook` | `rsconnect write-manifest streamlit --overwrite -x .venv .` |
 | `04-energy-api` | `rsconnect write-manifest fastapi --overwrite -e app:app -x .venv .` |
-| `05-country-cards` | `rsconnect write-manifest nodejs --overwrite -x node_modules .` |
 | `06-weekly-energy-brief` | `Rscript -e 'rsconnect::writeManifest(appFiles = "index.qmd", appPrimaryDoc = "index.qmd", quarto = TRUE)'` |
 | `08-energy-chat` | `Rscript -e 'rsconnect::writeManifest(appFiles = c("app.R", "data_description.md"))'` |
 
-Python packages come from each folder's `requirements.txt`: edit it first, then regenerate. R packages come from your installed library, so the manifest records the versions you have locally. The `rsconnect` commands need rsconnect-python 1.29.0 or later (Node.js support).
+Python packages come from each folder's `requirements.txt`: edit it first, then regenerate. R packages come from your installed library, so the manifest records the versions you have locally.
