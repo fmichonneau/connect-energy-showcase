@@ -1,0 +1,201 @@
+area,year,access
+East Asia & Pacific,2000,92.1
+East Asia & Pacific,2001,92.5
+East Asia & Pacific,2002,93.0
+East Asia & Pacific,2003,93.2
+East Asia & Pacific,2004,94.0
+East Asia & Pacific,2005,93.6
+East Asia & Pacific,2006,94.6
+East Asia & Pacific,2007,94.7
+East Asia & Pacific,2008,95.2
+East Asia & Pacific,2009,95.0
+East Asia & Pacific,2010,95.5
+East Asia & Pacific,2011,96.0
+East Asia & Pacific,2012,96.2
+East Asia & Pacific,2013,96.5
+East Asia & Pacific,2014,96.6
+East Asia & Pacific,2015,97.0
+East Asia & Pacific,2016,97.0
+East Asia & Pacific,2017,97.7
+East Asia & Pacific,2018,97.7
+East Asia & Pacific,2019,97.9
+East Asia & Pacific,2020,97.8
+East Asia & Pacific,2021,98.2
+East Asia & Pacific,2022,98.2
+East Asia & Pacific,2023,98.4
+East Asia & Pacific,2024,98.6
+Europe & Central Asia,2000,99.1
+Europe & Central Asia,2001,99.2
+Europe & Central Asia,2002,99.2
+Europe & Central Asia,2003,99.2
+Europe & Central Asia,2004,99.2
+Europe & Central Asia,2005,99.3
+Europe & Central Asia,2006,99.3
+Europe & Central Asia,2007,99.4
+Europe & Central Asia,2008,99.4
+Europe & Central Asia,2009,99.5
+Europe & Central Asia,2010,99.7
+Europe & Central Asia,2011,99.7
+Europe & Central Asia,2012,99.8
+Europe & Central Asia,2013,99.8
+Europe & Central Asia,2014,99.9
+Europe & Central Asia,2015,99.2
+Europe & Central Asia,2016,99.8
+Europe & Central Asia,2017,100.0
+Europe & Central Asia,2018,100.0
+Europe & Central Asia,2019,100.0
+Europe & Central Asia,2020,100.0
+Europe & Central Asia,2021,100.0
+Europe & Central Asia,2022,100.0
+Europe & Central Asia,2023,100.0
+Europe & Central Asia,2024,100.0
+Latin America & Caribbean,2000,91.7
+Latin America & Caribbean,2001,92.3
+Latin America & Caribbean,2002,92.7
+Latin America & Caribbean,2003,92.7
+Latin America & Caribbean,2004,93.2
+Latin America & Caribbean,2005,93.5
+Latin America & Caribbean,2006,94.3
+Latin America & Caribbean,2007,94.5
+Latin America & Caribbean,2008,95.2
+Latin America & Caribbean,2009,95.4
+Latin America & Caribbean,2010,95.9
+Latin America & Caribbean,2011,96.2
+Latin America & Caribbean,2012,96.6
+Latin America & Caribbean,2013,96.9
+Latin America & Caribbean,2014,97.1
+Latin America & Caribbean,2015,97.3
+Latin America & Caribbean,2016,97.5
+Latin America & Caribbean,2017,97.7
+Latin America & Caribbean,2018,97.8
+Latin America & Caribbean,2019,98.0
+Latin America & Caribbean,2020,98.1
+Latin America & Caribbean,2021,98.3
+Latin America & Caribbean,2022,98.6
+Latin America & Caribbean,2023,98.4
+Latin America & Caribbean,2024,98.0
+"Middle East, North Africa, Afghanistan & Pakistan",2000,82.6
+"Middle East, North Africa, Afghanistan & Pakistan",2001,83.3
+"Middle East, North Africa, Afghanistan & Pakistan",2002,83.6
+"Middle East, North Africa, Afghanistan & Pakistan",2003,84.6
+"Middle East, North Africa, Afghanistan & Pakistan",2004,85.0
+"Middle East, North Africa, Afghanistan & Pakistan",2005,86.0
+"Middle East, North Africa, Afghanistan & Pakistan",2006,87.7
+"Middle East, North Africa, Afghanistan & Pakistan",2007,87.2
+"Middle East, North Africa, Afghanistan & Pakistan",2008,88.1
+"Middle East, North Africa, Afghanistan & Pakistan",2009,88.7
+"Middle East, North Africa, Afghanistan & Pakistan",2010,90.6
+"Middle East, North Africa, Afghanistan & Pakistan",2011,90.8
+"Middle East, North Africa, Afghanistan & Pakistan",2012,91.9
+"Middle East, North Africa, Afghanistan & Pakistan",2013,93.1
+"Middle East, North Africa, Afghanistan & Pakistan",2014,94.0
+"Middle East, North Africa, Afghanistan & Pakistan",2015,93.4
+"Middle East, North Africa, Afghanistan & Pakistan",2016,95.2
+"Middle East, North Africa, Afghanistan & Pakistan",2017,96.0
+"Middle East, North Africa, Afghanistan & Pakistan",2018,95.0
+"Middle East, North Africa, Afghanistan & Pakistan",2019,96.0
+"Middle East, North Africa, Afghanistan & Pakistan",2020,96.3
+"Middle East, North Africa, Afghanistan & Pakistan",2021,96.4
+"Middle East, North Africa, Afghanistan & Pakistan",2022,95.9
+"Middle East, North Africa, Afghanistan & Pakistan",2023,96.4
+"Middle East, North Africa, Afghanistan & Pakistan",2024,96.8
+North America,2000,100.0
+North America,2001,100.0
+North America,2002,100.0
+North America,2003,100.0
+North America,2004,100.0
+North America,2005,100.0
+North America,2006,100.0
+North America,2007,100.0
+North America,2008,100.0
+North America,2009,100.0
+North America,2010,100.0
+North America,2011,100.0
+North America,2012,100.0
+North America,2013,100.0
+North America,2014,100.0
+North America,2015,100.0
+North America,2016,100.0
+North America,2017,100.0
+North America,2018,100.0
+North America,2019,100.0
+North America,2020,100.0
+North America,2021,100.0
+North America,2022,100.0
+North America,2023,100.0
+North America,2024,100.0
+South Asia,2000,56.8
+South Asia,2001,58.3
+South Asia,2002,59.4
+South Asia,2003,62.3
+South Asia,2004,61.5
+South Asia,2005,65.9
+South Asia,2006,65.9
+South Asia,2007,69.3
+South Asia,2008,71.8
+South Asia,2009,73.0
+South Asia,2010,74.1
+South Asia,2011,77.3
+South Asia,2012,78.4
+South Asia,2013,80.8
+South Asia,2014,82.8
+South Asia,2015,86.5
+South Asia,2016,88.3
+South Asia,2017,91.4
+South Asia,2018,94.8
+South Asia,2019,95.5
+South Asia,2020,96.4
+South Asia,2021,99.4
+South Asia,2022,99.1
+South Asia,2023,99.4
+South Asia,2024,99.8
+Sub-Saharan Africa,2000,25.7
+Sub-Saharan Africa,2001,26.2
+Sub-Saharan Africa,2002,27.3
+Sub-Saharan Africa,2003,29.6
+Sub-Saharan Africa,2004,29.4
+Sub-Saharan Africa,2005,29.4
+Sub-Saharan Africa,2006,31.2
+Sub-Saharan Africa,2007,32.5
+Sub-Saharan Africa,2008,32.4
+Sub-Saharan Africa,2009,32.6
+Sub-Saharan Africa,2010,33.3
+Sub-Saharan Africa,2011,35.9
+Sub-Saharan Africa,2012,36.8
+Sub-Saharan Africa,2013,38.0
+Sub-Saharan Africa,2014,38.4
+Sub-Saharan Africa,2015,39.2
+Sub-Saharan Africa,2016,43.8
+Sub-Saharan Africa,2017,43.8
+Sub-Saharan Africa,2018,46.4
+Sub-Saharan Africa,2019,47.2
+Sub-Saharan Africa,2020,48.5
+Sub-Saharan Africa,2021,50.7
+Sub-Saharan Africa,2022,51.5
+Sub-Saharan Africa,2023,53.3
+Sub-Saharan Africa,2024,55.1
+World,2000,78.2
+World,2001,78.7
+World,2002,79.1
+World,2003,80.0
+World,2004,80.0
+World,2005,80.7
+World,2006,81.4
+World,2007,82.0
+World,2008,82.7
+World,2009,82.9
+World,2010,83.5
+World,2011,84.5
+World,2012,84.9
+World,2013,85.7
+World,2014,86.2
+World,2015,86.9
+World,2016,88.1
+World,2017,88.9
+World,2018,89.8
+World,2019,90.1
+World,2020,90.4
+World,2021,91.3
+World,2022,91.3
+World,2023,91.6
+World,2024,91.9
