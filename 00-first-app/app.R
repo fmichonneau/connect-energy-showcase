@@ -6,7 +6,7 @@ access <- read.csv("electricity-access.csv")
 regions <- setdiff(unique(access$area), "World")
 
 ui <- page_sidebar(
-  title = "Access to electricity",
+  title = "Access to electricity by Region",
   sidebar = sidebar(
     selectInput("region", "Region", choices = regions, selected = "Sub-Saharan Africa")
   ),
